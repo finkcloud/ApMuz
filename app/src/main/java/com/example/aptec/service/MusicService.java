@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -14,8 +13,12 @@ import java.io.IOException;
 
 
 public class MusicService extends Service implements MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener,
-        MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener, AudioManager.OnAudioFocusChangeListener{
+        MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener,
+        MediaPlayer.OnSeekCompleteListener,
+        MediaPlayer.OnInfoListener,
+        MediaPlayer.OnBufferingUpdateListener,
+        AudioManager.OnAudioFocusChangeListener{
 
     private AudioManager audioManager;
 
@@ -31,19 +34,17 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     // mediaplayer instance
     MediaPlayer mediaPlayer;
 
-    int music_res;
+
 
     @Override
     public IBinder onBind(Intent intent) {
-        Bundle intentBundle   = intent.getExtras();
 
-        music_res = intentBundle.getInt("trackId");
         return iBinder;
     }
     @Override
     public void onCreate(){
         super.onCreate();
-        mediaPlayer = MediaPlayer.create( this, music_res);
+
     }
 
     @Override
@@ -190,7 +191,8 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
     private boolean requestAudioFocus() {
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN);
         if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             //Focus gained
             return true;
@@ -216,7 +218,6 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     private void initMediaPlayer() {
 
         mediaPlayer = new MediaPlayer();
-
 
         //Set up MediaPlayer event listeners
         mediaPlayer.setOnCompletionListener(this);
