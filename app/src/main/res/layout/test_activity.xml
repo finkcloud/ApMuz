@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:background="@color/twitter_bg">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_pic"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/avatar"
+            app:civ_border_color="#eeeeee"
+            app:civ_border_width="1dp"/>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_toRightOf="@id/profile_pic"
+            android:text="David Cancel Doe"
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/handle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="12dp"
+            android:layout_toRightOf="@id/username"
+            android:text="\@dcanceldoe"
+            android:textColor="#fff"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+
+            android:layout_toRightOf="@id/handle"
+            android:text="5h"
+            android:textColor="#fff"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_below="@id/username"
+            android:layout_marginTop="2dp"
+            android:id="@+id/tweetText"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@id/profile_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:text="Ego or humanity \nGrateful or entitled \nCurious or Indifferent Innovate or concede"/>
+
+
+
+<RelativeLayout
+    android:layout_marginLeft="16dp"
+    android:layout_marginTop="16dp"
+    android:layout_alignParentBottom="true"
+    android:layout_toRightOf="@id/profile_pic"
+    android:id="@+id/action_container"
+    android:layout_width="match_parent"
+    android:paddingBottom="8dp"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/comment"
+        android:layout_marginTop="2dp"
+        android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:src="@drawable/outline_mode_comment_white_18dp"/>
+    <TextView
+
+        android:layout_toRightOf="@id/comment"
+        android:id="@+id/comment_count"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:text="4"
+        android:textSize="12sp"
+        android:textColor="#fff"/>
+
+    <ImageView
+        android:id="@+id/retweet"
+        android:layout_toRightOf="@id/comment_count"
+        android:layout_width="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_alignParentBottom="true"
+        android:layout_height="24dp"
+        android:src="@drawable/retweet_24"/>
+    <TextView
+        android:id="@+id/retweet_count"
+        android:layout_toRightOf="@id/retweet"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_alignParentBottom="true"
+        android:textSize="12sp"
+        android:textColor="#fff"
+        android:layout_height="wrap_content"
+        android:text="42"/>
+
+</RelativeLayout>
+
+
+    </RelativeLayout>
+
+
+
+
+</LinearLayout>
