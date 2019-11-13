@@ -1,37 +1,50 @@
 package com.example.aptec.model;
 
 public class Music {
-    int albumArt;
-    String trackName;
-    String ArtistName;
-    int trackId;
+  private String song;
+  private String title;
+  private String album;
+    private String artist;
 
-    public Music(int albumArt, String trackName, String artistName) {
-        this.albumArt = albumArt;
-        this.trackName = trackName;
-        this.ArtistName = artistName;
+
+    public Music(String song, String title, String album, String artist) {
+        this.song = song;
+        this.title = title;
+        this.album = album;
+        this.artist = artist;
     }
 
-    public Music (int albumArt, String trackName, int trackId, String artistName){
-        this.albumArt = albumArt;
-        this.trackId = trackId;
-        this.ArtistName = artistName;
-        this.trackName = trackName;
+    public String getSong() {
+        return song;
     }
 
-    public int getAlbumArt() {
-        return albumArt;
+    public void setSong(String song) {
+        this.song = song;
     }
 
-    public String getTrackName() {
-        return trackName;
+    public String getTitle() {
+        return title;
     }
 
-    public String getArtistName() {
-        return ArtistName;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public  int getTrackId(){
-        return trackId;
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
     }
 }
+
+

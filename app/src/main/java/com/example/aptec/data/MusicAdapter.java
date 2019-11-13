@@ -1,16 +1,13 @@
 package com.example.aptec.data;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.aptec.MainActivity;
 import com.example.aptec.R;
 import com.example.aptec.model.Music;
 
@@ -43,20 +40,20 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
         Music music = mMusicList.get(position);
 
         //set its data
-        holder.imageViewAlbumArt.setImageResource(music.getAlbumArt());
-        holder.textViewArtistName.setText(music.getArtistName());
-        holder.textViewMusicTitle.setText((music.getTrackName()));
+        holder.album.setText(trimTtile(music.getAlbum(), 23));
+        holder.textViewArtistName.setText(trimTtile(music.getArtist(), 23));
+        holder.textViewMusicTitle.setText(trimTtile(music.getTitle(),26));
 
-        // implement setOnClickListener event on item view.
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // open another activity on item click
-                Intent intent = new Intent(mContext, MainActivity.class);
-                intent.putExtra("trackId", mMusicList.get(position).getTrackId()); // put image data in Intent
-                mContext.startActivity(intent); // start Intent
-            }
-        });
+//        // implement setOnClickListener event on item view.
+//        holder.itemView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // open another activity on item click
+//                Intent intent = new Intent(mContext, PlayerActivity.class);
+//                intent.putExtra("media", mMusicList.get(position).getSong()); // put image data in Intent
+//                mContext.startActivity(intent); // start Intent
+//            }
+//        });
 
     }
 
@@ -65,15 +62,22 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
         return mMusicList.size();
     }
 
+    private String trimTtile(String title, int limit){
+        if (title.length() > limit){
+            String newTitle = title.substring(0, limit);
+            return  newTitle + " ...";
+        }
+        return title;
+    }
 
     public class MusicViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageViewAlbumArt;
+        TextView album;
         TextView textViewMusicTitle;
         TextView textViewArtistName;
 
         public MusicViewHolder( View itemView) {
             super(itemView);
-            imageViewAlbumArt = itemView.findViewById(R.id.albumart);
+            album = itemView.findViewById(R.id.album);
             textViewMusicTitle = itemView.findViewById(R.id.title_of_song);
             textViewArtistName = itemView.findViewById(R.id.artist_name);
         }

@@ -1,13 +1,19 @@
 package com.example.aptec.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import com.example.aptec.PlayerActivity;
 
 import java.io.IOException;
 
@@ -19,6 +25,14 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         MediaPlayer.OnInfoListener,
         MediaPlayer.OnBufferingUpdateListener,
         AudioManager.OnAudioFocusChangeListener{
+
+
+    // new
+
+    //Handle incoming phone calls
+    private boolean ongoingCall = false;
+    private PhoneStateListener phoneStateListener;
+    private TelephonyManager telephonyManager;
 
     private AudioManager audioManager;
 
@@ -45,6 +59,16 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     public void onCreate(){
         super.onCreate();
 
+        // Manage incoming phone calls during playback.
+        // Pause MediaPlayer on incoming call,
+        // Resume on hangup.
+        callStateListener();
+        //ACTION_AUDIO_BECOMING_NOISY -- change in audio outputs -- BroadcastReceiver
+        registerBecomingNoisyReceiver();
+
+        //Listen for new Audio to play -- BroadcastReceiver
+        register_playNewAudio();
+
     }
 
     @Override
@@ -58,7 +82,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         }
 
         //Request audio focus
-        if (requestAudioFocus() == false) {
+        if (!requestAudioFocus()) {
             //Could not gain focus
             stopSelf();
         }
@@ -68,18 +92,12 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
         return super.onStartCommand(intent, flags, startId);
 
-
-       // mediaPlayer.start(); to be deleted
-     //return 0; to be deleted
     }
 
 
 
     @Override
     public void onDestroy(){
-        //mediaPlayer.release(); -> old code
-       // super.onDestroy(); -> old code
-
         super.onDestroy();
         if (mediaPlayer != null) {
             stopMedia();
@@ -230,7 +248,12 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         //Reset so that the MediaPlayer is not pointing to another data source
         mediaPlayer.reset();
 
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+
+
+            // falback to regular if the device is not of lollipop+
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
         try {
             // Set the data source to the mediaFile location
             mediaPlayer.setDataSource(mediaFile);
@@ -267,6 +290,85 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
             mediaPlayer.seekTo(resumePosition);
             mediaPlayer.start();
         }
+    }
+
+    //Becoming noisy
+    private BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //pause audio on ACTION_AUDIO_BECOMING_NOISY
+            pauseMedia();
+           // buildNotification(PlaybackStatus.PAUSED);
+        }
+    };
+
+    private void registerBecomingNoisyReceiver() {
+        //register after getting audio focus
+        IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        registerReceiver(becomingNoisyReceiver, intentFilter);
+    }
+
+    //Handle incoming phone calls
+    private void callStateListener() {
+        // Get the telephony manager
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        //Starting listening for PhoneState changes
+        phoneStateListener = new PhoneStateListener() {
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                switch (state) {
+                    //if at least one call exists or the phone is ringing
+                    //pause the MediaPlayer
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        if (mediaPlayer != null) {
+                            pauseMedia();
+                            ongoingCall = true;
+                        }
+                        break;
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        // Phone idle. Start playing.
+                        if (mediaPlayer != null) {
+                            if (ongoingCall) {
+                                ongoingCall = false;
+                                resumeMedia();
+                            }
+                        }
+                        break;
+                }
+            }
+        };
+        // Register the listener with the telephony manager
+        // Listen for changes to the device call state.
+        telephonyManager.listen(phoneStateListener,
+                PhoneStateListener.LISTEN_CALL_STATE);
+    }
+
+    private BroadcastReceiver playNewAudio = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            //get an audio
+
+            try {
+                //An audio file is passed to the service through putExtra();
+                mediaFile = intent.getExtras().getString("media");
+            } catch (NullPointerException e) {
+                stopSelf();
+            }
+
+            //A PLAY_NEW_AUDIO action received
+            //reset mediaPlayer to play the new Audio
+            stopMedia();
+            mediaPlayer.reset();
+            initMediaPlayer();
+        }
+    };
+
+    private void register_playNewAudio() {
+        //Register playNewMedia receiver
+        IntentFilter filter = new IntentFilter(PlayerActivity.Broadcast_PLAY_NEW_AUDIO);
+        registerReceiver(playNewAudio, filter);
     }
 
 }

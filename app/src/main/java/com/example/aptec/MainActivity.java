@@ -15,29 +15,42 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.aptec.service.MusicService;
 
 public class MainActivity extends AppCompatActivity {
-
+    String media;
     private MusicService player;
     boolean serviceBound = false;
     String email = "";
     String password = "";
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean("ServiceState", serviceBound);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
         Bundle intentBundle = getIntent().getExtras();
 
         try{
-            email = intentBundle.getString("email");
-            password = intentBundle.getString("password");
+//            email = intentBundle.getString("email");
+//            password = intentBundle.getString("password");
 
-            Toast.makeText(this,"your email: "+ email
-                    + "Your password: " + password,Toast.LENGTH_LONG).show();
+            media = intentBundle.getString("media");
+
+//            Toast.makeText(this,"your email: "+ email
+//                    + "Your password: " + password,Toast.LENGTH_LONG).show();
         }catch (NullPointerException e){
             e.printStackTrace();
         }
 
+
+
+        // play song
+
+        //play the song audio in the from intent
+        playAudio(media);
 
 
 
@@ -65,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // play audio supplied with d auio file
-
+// will be added to the play button
     private void playAudio(String media) {
         //Check is service is active
         if (!serviceBound) {
@@ -78,6 +91,26 @@ public class MainActivity extends AppCompatActivity {
             //Send media with BroadcastReceiver
         }
     }
+
+
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        serviceBound = savedInstanceState.getBoolean("ServiceState");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (serviceBound) {
+            unbindService(serviceConnection);
+            //service is active
+            player.stopSelf();
+        }
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -93,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id){
             case  R.id.action_exit:
-                // exit
+                super.finish(); // exit
                 break;
             case R.id.action_lib:
                 // open lib
