@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.aptec.data.MusicAdapter;
 import com.example.aptec.data.RecyclerItemClickListener;
+import com.example.aptec.data.StorageUtil;
 import com.example.aptec.model.Music;
 import com.example.aptec.service.MusicService;
 
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    public static final String Broadcast_PLAY_NEW_AUDIO = "com.example.aptec.PlayNewAudio";
+    public static final String Broadcast_PLAY_NEW_AUDIO = "com.example.aptec";
 
    TextView songTitle;
     // get the reference of RecyclerView
@@ -99,7 +100,7 @@ public class PlayerActivity extends AppCompatActivity {
                     new RecyclerItemClickListener.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    playAudio(musicList.get(position).getSong());
+                    playAudio(position);
                 }
             }));
 
@@ -134,7 +135,7 @@ public class PlayerActivity extends AppCompatActivity {
     public void onPlaySongClicked(View v){
 
         if(media != null){
-            playAudio(media);
+           // playAudio(media);
         }
 
     }
@@ -166,7 +167,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     // play audio supplied with d auio file
 // will be added to the play button
-    private void playAudio(String media) {
+    /*private void playAudio(String media) {
         //Check is service is active
         if (!serviceBound) {
             Intent playerIntent = new Intent(this, MusicService.class);
@@ -174,16 +175,40 @@ public class PlayerActivity extends AppCompatActivity {
             startService(playerIntent);
             bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         } else {
-            //Service is active
-            //Send media with BroadcastReceiver
 
             //Service is active
             //Send a broadcast to the service -> PLAY_NEW_AUDIO
             Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
-            broadcastIntent.putExtra("media", media);
+            broadcastIntent.putExtra("new_media", media);
+            sendBroadcast(broadcastIntent);
+        }
+    }*/
+
+    private void playAudio(int audioIndex) {
+        //Check is service is active
+        if (!serviceBound) {
+            //Store Serializable audioList to SharedPreferences
+            StorageUtil storage = new StorageUtil(getApplicationContext());
+            storage.storeAudio(musicList);
+            storage.storeAudioIndex(audioIndex);
+
+            Intent playerIntent = new Intent(this, MusicService.class);
+            startService(playerIntent);
+            bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            //Store the new audioIndex to SharedPreferences
+            StorageUtil storage = new StorageUtil(getApplicationContext());
+            storage.storeAudioIndex(audioIndex);
+
+            //Service is active
+            //Send a broadcast to the service -> PLAY_NEW_AUDIO
+            Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
             sendBroadcast(broadcastIntent);
         }
     }
+
+
+
 
     @Override
     public  boolean onCreateOptionsMenu(Menu menu){
