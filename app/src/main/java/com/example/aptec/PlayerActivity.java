@@ -10,11 +10,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,19 +46,40 @@ public class PlayerActivity extends AppCompatActivity {
     boolean serviceBound = false;
 
 
+    //Binding this Client to the AudioPlayer Service (musicserice)
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            player = binder.getService();
+            serviceBound = true;
+
+            Log.d("SERVICE", "Service Bound");
+            //Toast.makeText(PlayerActivity.this, "Service Bound", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+        songTitle = findViewById(R.id.title_of_song);
 
-        Bundle intentBundle = getIntent().getExtras();
-        try{
-            media = intentBundle.getString("media");
 
-        }catch (NullPointerException e){
-            e.printStackTrace();
-        }
+//        Bundle intentBundle = getIntent().getExtras();
+//        try{
+//            media = intentBundle.getString("media");
+//
+//        }catch (NullPointerException e){
+//            e.printStackTrace();
+//        }
 
 
         loadAudio();
@@ -71,6 +92,28 @@ public class PlayerActivity extends AppCompatActivity {
 
     }
 
+    private void loadAudio() {
+        ContentResolver contentResolver = getContentResolver();
+
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
+        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+        Cursor cursor = contentResolver.query(uri, null, selection, null, sortOrder);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            musicList = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                String data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+                String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+
+                // Save to audioList
+                musicList.add(new Music(data, title, album, artist));
+            }
+        }
+        cursor.close();
+    }
 
     private void setupRecylerView(){
 
@@ -101,6 +144,17 @@ public class PlayerActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(View view, int position) {
                     playAudio(position);
+
+                    try {
+                        if (songTitle.getVisibility() == View.GONE && musicList.get(position).getTitle() != null) {
+                            songTitle.setText(musicList.get(position).getTitle());
+                            Log.d("SONG", musicList.get(position).getTitle());
+                            songTitle.setVisibility(View.VISIBLE);
+                        }
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             }));
 
@@ -108,62 +162,6 @@ public class PlayerActivity extends AppCompatActivity {
 
 
     }
-
-    private void loadAudio() {
-        ContentResolver contentResolver = getContentResolver();
-
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
-        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        Cursor cursor = contentResolver.query(uri, null, selection, null, sortOrder);
-
-        if (cursor != null && cursor.getCount() > 0) {
-            musicList = new ArrayList<>();
-            while (cursor.moveToNext()) {
-                String data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-
-                // Save to audioList
-                musicList.add(new Music(data, title, album, artist));
-            }
-        }
-        cursor.close();
-    }
-
-    public void onPlaySongClicked(View v){
-
-        if(media != null){
-           // playAudio(media);
-        }
-
-    }
-
-    public void onStopSongClicked(View v){
-        Intent musicIntent = new Intent(this, MusicService.class);
-       // Intent mIntent = new Intent(this,TestService.class);
-       // stopService(musicIntent);
-        //stopService(mIntent);
-    }
-
-    //Binding this Client to the AudioPlayer Service (musicserice)
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            player = binder.getService();
-            serviceBound = true;
-
-            Toast.makeText(PlayerActivity.this, "Service Bound", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            serviceBound = false;
-        }
-    };
 
     // play audio supplied with d auio file
 // will be added to the play button

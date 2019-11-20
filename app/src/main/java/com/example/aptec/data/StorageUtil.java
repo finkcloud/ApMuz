@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class StorageUtil {
 
-    private final String STORAGE = " com.valdioveliu.valdio.audioplayer.STORAGE";
+    private final String STORAGE = " com.example.aptec.STORAGE";
     private SharedPreferences preferences;
     private Context context;
 
@@ -42,13 +42,13 @@ public class StorageUtil {
     public void storeAudioIndex(int index) {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("audioIndex", index);
+        editor.putInt("musicIndex", index);
         editor.apply();
     }
 
     public int loadAudioIndex() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-        return preferences.getInt("audioIndex", -1);//return -1 if no data found
+        return preferences.getInt("musicIndex", -1);//return -1 if no data found
     }
 
     public void clearCachedAudioPlaylist() {

@@ -295,12 +295,9 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN);
-        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            //Focus gained
-            return true;
-        }
+        //Focus gained
+        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         //Could not gain focus
-        return false;
     }
 
     private boolean removeAudioFocus() {
@@ -477,7 +474,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
             mediaSessionManager = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
         }
         // Create a new MediaSession
-        mediaSession = new MediaSessionCompat(getApplicationContext(), "AudioPlayer");
+        mediaSession = new MediaSessionCompat(getApplicationContext(), "Aptec");
         //Get MediaSessions transport controls
         transportControls = mediaSession.getController().getTransportControls();
         //set MediaSession -> ready to receive media commands
@@ -616,7 +613,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
                 R.drawable.avatar); //replace with your own image
 
         // Create a new Notification
-        NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setShowWhen(false)
                 // Set the Notification style
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
